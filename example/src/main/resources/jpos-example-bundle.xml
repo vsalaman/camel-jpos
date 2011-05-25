@@ -1,0 +1,25 @@
+<jpos-client>
+
+    <logger name="Q2" class="org.jpos.q2.qbean.LoggerAdaptor">
+        <log-listener class="org.jpos.util.SimpleLogListener"/>
+    </logger>
+
+    <example name="example" logger="Q2" realm="example" class="com.vmantek.camel.jpos.example.service.ExampleCamelService">
+        <property name="baseDir" value="${baseDir}"/>
+    </example>
+    
+    <txnmgr name="txnmgr" logger="Q2" realm="TM" class="org.jpos.transaction.TransactionManager">
+
+        <property name="space" value="transient:default"/>
+        <property name="queue" value="txnmgr"/>
+        <property name="persistent-space" value="jdbm:${dbDir}/TxnMgrSpace"/>
+        <property name="max-sessions" value="10"/>
+        <property name="debug" value="true"/>
+
+        <participant class="com.vmantek.camel.jpos.example.util.Debug" logger="Q2" realm="debug"/>
+        <participant class="com.vmantek.camel.jpos.example.tm.DummyProcessing" logger="Q2" realm="process-request"/>
+        <participant class="com.vmantek.camel.jpos.example.tm.SendToSource" logger="Q2" realm="send-response"/>
+
+    </txnmgr>
+
+</jpos-client>
