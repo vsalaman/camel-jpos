@@ -7,9 +7,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.vmantek.camel.jpos</groupId>
+    <groupId>com.vmantek.camel.jpos</groupId>
     <artifactId>camel-jpos-example</artifactId>
-	<version>1.0.0</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Camel :: jPOS Example</name>
     <description>Camel jPOS example</description>
@@ -19,13 +19,13 @@
         <dependency>
             <groupId>com.vmantek.camel.jpos</groupId>
             <artifactId>camel-jpos</artifactId>
-			<version>1.0.0</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring</artifactId>
-			<version>2.7.1</version>
+            <version>2.7.1</version>
         </dependency>
 
         <dependency>
@@ -43,16 +43,35 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-			<version>1.6.1</version>
+            <version>1.6.1</version>
         </dependency>
 
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-			<version>1.2.16</version>
+            <version>1.2.16</version>
         </dependency>
 
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.vmantek.camel.jpos.example.Loader</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
