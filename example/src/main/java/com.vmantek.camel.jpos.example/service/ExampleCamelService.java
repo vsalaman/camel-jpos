@@ -23,6 +23,7 @@ public class ExampleCamelService extends QBeanSupport implements Constants
     {
         baseDir = cfg.get("baseDir");
         ApplicationContext applicationContext = new GenericXmlApplicationContext();
+
         camelContext=new SpringCamelContext(applicationContext);
         camelContext.addRoutes(new MyRouteBuilder());
         camelContext.start();
@@ -57,11 +58,17 @@ public class ExampleCamelService extends QBeanSupport implements Constants
 
         public void process(Exchange exchange) throws Exception
         {
+            //this block should be very familiar...
+            //We get the ISOMsg from the exchange input
             ISOMsg m= (ISOMsg) exchange.getIn().getBody();
+
+            //We create an ISOSource so our code knows where to send replies!
             CamelISOSource source=new CamelISOSource(context,destination);
             Context ctx=new Context();
             ctx.put(SOURCE,source);
             ctx.put(REQUEST,m);
+
+            //We set the exchange output body the jPOS Context
             exchange.getOut().setBody(ctx);
         }
     }
@@ -71,20 +78,23 @@ public class ExampleCamelService extends QBeanSupport implements Constants
         @Override
         public void configure() throws Exception
         {
+            //Creates a processor which creates our ISOSource
             final TMDispatchProcessor tmDispatcher = new TMDispatchProcessor(getContext(), "vm://test");
 
-            //Wait for any file in "in" directory.
+            //Wait for any file in "in" directory, convert the xml to an ISOMsg and send it to the "direct:process" endpoint
             from("file:"+baseDir+"/in?moveFailed="+baseDir+"/errors/${file:name.noext}-${date:now:yyyyMMddHHmmssSSS}.${file:ext}").
                     convertBodyTo(String.class).
                     convertBodyTo(ISOMsg.class).
                     to("direct:process");
 
+            //Listen on the "direct:process" endpoint, invokes the tmDispatcher processor created above,
+            // and sends the jPOS context to a jPOS transient Space with the key "txnmgr"
             from("direct:process").
                     process(tmDispatcher).
                     to("space:transient:default?key=txnmgr");
 
-            //Wait for any response on vm://test , convert it to a string
-            // and put it in a file in directory "out"
+            //Wait for any response on vm://test, which is where our ISOSource is configured to return all replies,
+            // and convert it to a String and put it in a file in directory "out"
             from("vm://test").
                     convertBodyTo(String.class).
                     to("file:"+baseDir+"/out");

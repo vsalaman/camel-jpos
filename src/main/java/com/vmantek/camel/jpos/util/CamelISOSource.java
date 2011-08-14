@@ -1,31 +1,38 @@
 package com.vmantek.camel.jpos.util;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
+import org.apache.camel.ProducerTemplate;
 import org.jpos.iso.ISOException;
-import org.jpos.iso.ISOFilter.VetoException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.ISOSource;
 
 import java.io.IOException;
 
+/**
+ * Creates a camel enabled ISOSource to be used in a jPOS application.
+ */
 public class CamelISOSource implements ISOSource
 {
-    CamelContext camelContext;
-    String uri;
+    ProducerTemplate producerTemplate;
+    Endpoint endpoint;
+
+    public CamelISOSource(CamelContext camelContext, Endpoint endpoint)
+    {
+        producerTemplate = camelContext.createProducerTemplate();
+        this.endpoint = endpoint;
+    }
 
     public CamelISOSource(CamelContext camelContext, String uri)
     {
-        this.camelContext = camelContext;
-        this.uri = uri;
+        this(camelContext,camelContext.getEndpoint(uri));
     }
 
-    @Override
-    public void send(ISOMsg m) throws IOException, ISOException, VetoException
+    public void send(ISOMsg m) throws IOException, ISOException
     {
-        camelContext.createProducerTemplate().sendBody(uri,m);
+        producerTemplate.sendBody(endpoint, m);
     }
 
-    @Override
     public boolean isConnected()
     {
         return true;
